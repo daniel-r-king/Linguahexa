@@ -8,6 +8,10 @@
 #ifndef tests_hpp
 #define tests_hpp
 
-#include <iostream>
+bool TEST_boardIsEmpty();
+bool TEST_placeContiguousTiles();
+bool TEST_validateCoordinates();
+bool TEST_outOfBounds();
+void TEST_runTests();
 
 #endif /* tests_hpp */

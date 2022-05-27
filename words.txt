@@ -66,8 +66,6 @@ affair
 affect
 afford
 afraid
-African
-African-American
 after
 afternoon
 again
@@ -85,7 +83,7 @@ ah
 ahead
 aid
 aide
-AIDS
+aids
 aim
 air
 aircraft
@@ -101,6 +99,8 @@ ally
 almost
 alone
 along
+alpha
+alphabet
 already
 also
 alter
@@ -112,6 +112,7 @@ amazing
 American
 among
 amount
+an
 analysis
 analyst
 analyze

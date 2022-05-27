@@ -4,9 +4,6 @@
 #include <string>
 #include <vector>
 
-#ifndef GAME_H
-#define GAME_H
-
 class Game {
 public:
     Game();
@@ -20,11 +17,15 @@ public:
 
     std::vector<std::vector<std::string>> backupBoard();
 
+    void placeTile(std::string letter, int r, int c);
+
+    void moveTile(int fr, int fc, int tr, int tc);
+
+    void removeTile(int r, int c);
+
     bool boardIsEmpty();
 
     bool placeContiguousTiles(int x, int y, int length, int direction);
-
-    bool placeBaseTiles(int r, int c, int length, int direction);
 
     bool outOfBounds(int r, int c, int length, int direction);
 
@@ -38,8 +39,6 @@ public:
 
     void arrangeBoard();
 
-    int getDistance(Tile* tile, int direction);
-
     void constructWordSlots();
 
     void trimWordSlots();
@@ -50,7 +49,7 @@ public:
 
     bool puzzleIsCoherent();
 
-    void placeWordByWord();
+    void placeWordsContingently();
 
     void getWords(unsigned int length, char letter, int index, std::vector<std::string>* words);
 
@@ -62,7 +61,13 @@ public:
 
     void invertWord(Word* word);
 
+    void printMenu();
+
+    std::string getLetter();
+
+    int getRow();
+
+    int getColumn();
+
     void printBoard();
 };
-
-#endif // GAME_H

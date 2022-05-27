@@ -14,8 +14,22 @@
 Game::Game() {
     for (int i = 0; i < BOARD_MAX_HEIGHT; i++) {
         std::vector<std::string> strings;
-        for (int j = 0; j < BOARD_MAX_WIDTH; j++) {
-            strings.push_back(BUILDABLE_SPACE);
+        if (i % 2 == 0) {
+            for (int j = 0; j < BOARD_MAX_WIDTH; j++) {
+                if (j % 2 != 0) {
+                    strings.push_back(BUILDABLE_SPACE);
+                } else {
+                    strings.push_back(BLOCKED_SPACE);
+                }
+            }
+        } else {
+            for (int j = 0; j < BOARD_MAX_WIDTH; j++) {
+                if (j % 2 == 0) {
+                    strings.push_back(BUILDABLE_SPACE);
+                } else {
+                    strings.push_back(BLOCKED_SPACE);
+                }
+            }
         }
         board.push_back(strings);
     }
@@ -34,6 +48,38 @@ std::vector<std::vector<std::string>> Game::backupBoard() {
         temp.push_back(strings);
     }
     return temp;
+}
+
+void Game::placeTile(std::string letter, int r, int c) {
+    if (validateCoordinates(r, c) && !outOfBounds(r, c, 1, 0)) {
+        std::string str = "[" + letter + "]";
+        board[r][c] = str;
+        Tile tile(letter, r, c);
+        gameTiles.push_back(tile);
+    }
+    else {
+        std::cout << "ERROR: Selected coordinates invalid or out of bounds" << std::endl;
+    }
+}
+
+void Game::moveTile(int fr, int fc, int tr, int tc) {
+    for (unsigned int i = 0; i < gameTiles.size(); i++) {
+        if (gameTiles[i].r == fr && gameTiles[i].c == fc) {
+            gameTiles[i].r = tr;
+            gameTiles[i].c = tc;
+            board[fr][fc] = BUILDABLE_SPACE;
+            board[tr][tc] = "[" + gameTiles[i].letter + "]";
+        }
+    }
+}
+
+void Game::removeTile(int r, int c) {
+    board[r][c] = BUILDABLE_SPACE;
+    for (unsigned int i = 0; i < gameTiles.size(); i++) {
+        if (gameTiles[i].r == r && gameTiles[i].c == c) {
+            gameTiles.erase(gameTiles.begin() + i);
+        }
+    }
 }
 
 bool Game::boardIsEmpty() {
@@ -110,74 +156,77 @@ bool Game::placeContiguousTiles(int r, int c, int length, int direction) {
     return connectionDetected;
 }
 
-bool Game::placeBaseTiles(int r, int c, int length, int direction) {
-    if (outOfBounds(r, c, length, direction)) {
-        return false;
-    }
-    switch (direction) {
-    case 0:
-        for (int i = 0; i < length; i++) {
-            board[r - (i * 2)][c] = TILE_SPACE;
-        }
-        break;
-    case 1:
-        for (int i = 0; i < length; i++) {
-            board[r - i][c + i] = TILE_SPACE;
-        }
-        break;
-    case 2:
-        for (int i = 0; i < length; i++) {
-            board[r + i][c + i] = TILE_SPACE;
-        }
-        break;
-    case 3:
-        for (int i = 0; i < length; i++) {
-            board[r + (i * 2)][c] = TILE_SPACE;
-        }
-        break;
-    case 4:
-        for (int i = 0; i < length; i++) {
-            board[r + i][c - i] = TILE_SPACE;
-        }
-        break;
-    case 5:
-        for (int i = 0; i < length; i++) {
-            board[r - i][c - i] = TILE_SPACE;
-        }
-        break;
-    }
-    return true;
-}
-
 bool Game::outOfBounds(int r, int c, int length, int direction) {
     switch (direction) {
     case 0:
-        if (r - (length * 2 ) < 0) {
+        if (r % 2 != 0 && r + 1 - (length * 2) < 0) {
+            std::cout << "game.cpp::163" << std::endl;
+            return true;
+        }
+        if (r % 2 == 0 && r + 2 - (length * 2) < 0) {
+            std::cout << "game.cpp::167" << std::endl;
             return true;
         }
         break;
     case 1:
-        if (r - length < 0 | c + length > BOARD_MAX_HEIGHT) {
+        if (length > r + 1) {
+            std::cout << "game.cpp::173" << std::endl;
             return true;
         }
         break;
     case 2:
-        if (r + length > 0 | c + length > BOARD_MAX_HEIGHT) {
+        if (length > (-1 * r) + BOARD_MAX_HEIGHT) {
+            std::cout << "game.cpp::179" << std::endl;
             return true;
         }
         break;
     case 3:
-        if (r + (length * 2) > BOARD_MAX_WIDTH) {
+        if (r % 2 != 0 && length > (BOARD_MAX_HEIGHT - r) / 2) {
+            std::cout << "game.cpp::185" << std::endl;
+            return true;
+        }
+        if (r % 2 == 0 && length > ((BOARD_MAX_HEIGHT - r) + 1) / 2) {
+            std::cout << "game.cpp::189" << std::endl;
             return true;
         }
         break;
     case 4:
-        if (r + length > BOARD_MAX_WIDTH | c - length < 0) {
+        if (length > c + 1) {
+            std::cout << "game.cpp::195" << std::endl;
             return true;
         }
         break;
     case 5:
-        if (r - length < 0 | c - length < 0) {
+        // r = 0, max l = 1 for all c
+        // r = 2, max l = 3 for all c > 1, else max l = c + 1
+        // r = 4, max l = 5 for all c > 3, else max l = c + 1
+        // r = 6, max l = 7 for all c > 5, else max l = c + 1
+        // r = 8, max l = 9 for all c > 7, else max l = c + 1
+        // r = 10,max l = 11for all c > 9, else max l = c + 1
+        // r = 12,max l = 13for all c > 11,else max l = c + 1
+        // r = 14,max l = 14for all c > 11,else max l = c + 1
+
+        // r = 1, max l = 2 for all c > 0, else max l = c + 1
+        // r = 3, max l = 4 for all c > 2, else max l = c + 1
+        // r = 5, max l = 6 for all c > 4, else max l = c + 1
+        // r = 7, max l = 8 for all c > 6, else max l = c + 1
+        // r = 9, max l = 10for all c > 8, else max l = c + 1
+        // r = 11,max l = 12for all c > 10,else max l = c + 1
+        // r = 13,max l = 14for all c > 12,else max l = c + 1
+        int maxLength = 0;
+        if (r == BOARD_MAX_HEIGHT - 1) {
+            maxLength = BOARD_MAX_HEIGHT - 1;
+        }
+        else {
+            if (c > r - 1) {
+                maxLength = r + 1;
+            }
+            else {
+                maxLength = c + 1;
+            }
+        }
+        if (length > maxLength) {
+            std::cout << "game.cpp::229" << std::endl;
             return true;
         }
         break;
@@ -186,7 +235,7 @@ bool Game::outOfBounds(int r, int c, int length, int direction) {
 }
 
 bool Game::validateCoordinates(int r, int c) {
-    if ((r % 2 == 0 && c % 2 != 0) | (r % 2 != 0 && c % 2 == 0)) {
+    if ((r % 2 == 0 && c % 2 != 0) || (r % 2 != 0 && c % 2 == 0)) {
         return true;
     } else {
         return false;
@@ -277,56 +326,6 @@ void Game::arrangeBoard() {
         }
         nTilesPlaced += length;
     }
-}
-
-int Game::getDistance(Tile* tile, int direction) {
-    int distance = 1;
-    Tile* current;
-    switch (direction) {
-    case 0:
-        current = tile;
-        while (current->s[0] != nullptr) {
-            distance++;
-            current = current->s[0];
-        }
-        break;
-    case 1:
-        current = tile;
-        while (current->s[1] != nullptr) {
-            distance++;
-            current = current->s[1];
-        }
-        break;
-    case 2:
-        current = tile;
-        while (current->s[2] != nullptr) {
-            distance++;
-            current = current->s[2];
-        }
-        break;
-    case 3:
-        current = tile;
-        while (current->s[3] != nullptr) {
-            distance++;
-            current = current->s[3];
-        }
-        break;
-    case 4:
-        current = tile;
-        while (current->s[4] != nullptr) {
-            distance++;
-            current = current->s[4];
-        }
-        break;
-    case 5:
-        current = tile;
-        while (current->s[5] != nullptr) {
-            distance++;
-            current = current->s[5];
-        }
-        break;
-    }
-    return distance;
 }
 
 void Game::constructWordSlots() {
@@ -445,7 +444,7 @@ void Game::trimWordSlots() {
 std::string Game::getRandomWord(int length) {
     std::ifstream input;
     std::vector<std::string> words;
-    input.open("/Users/daniel/Projects/Linguahexa/Linguahexa/words.txt");
+    input.open("words.txt");
     std::string str;
     if (input.is_open()) {
         while (std::getline(input, str)) {
@@ -576,7 +575,7 @@ void Game::placeWordsAtRandom() {
 
 void Game::getWords(unsigned int length, char letter, int index, std::vector<std::string>* words) {
     std::fstream input;
-    input.open("/Users/daniel/Projects/Linguahexa/Linguahexa/words.txt");
+    input.open("words.txt");
     std::string str;
     if (input.is_open()) {
         while (std::getline(input, str)) {
@@ -664,6 +663,8 @@ bool Game::puzzleIsCoherent() {
             break;
         }
         if (!isAWord(forward) && !isAWord(backward)) {
+            std::cout << forward << std::endl;
+            std::cout << backward << std::endl;
             return false;
         }
     }
@@ -732,7 +733,7 @@ int Game::getTileIndex(Word word, Tile* tile, int direction) {
     return -1;
 }
 
-void Game::placeWordByWord() {
+void Game::placeWordsContingently() {
     std::vector<Word> completedWords;
     for (unsigned int i = 0; i < wordSlots.size(); i++) {
         std::string word = "";
@@ -834,7 +835,7 @@ std::vector<Tile*> Game::getSharedTiles(Word wordA, Word wordB) {
 
 bool Game::isAWord(std::string str) {
     std::ifstream input;
-    input.open("/Users/daniel/Projects/Linguahexa/Linguahexa/words.txt");
+    input.open("words.txt");
     std::string line;
     if (input.is_open()) {
         while (std::getline(input, line)) {
@@ -846,6 +847,36 @@ bool Game::isAWord(std::string str) {
       std::cout << "ERROR: Failed to open input file." << std::endl;
     }
     return false;
+}
+
+void Game::printMenu() {
+    std::cout << "1. Place a tile" << std::endl;
+    std::cout << "2. Move a tile" << std::endl;
+    std::cout << "3. Delete a tile" << std::endl;
+    std::cout << "4. Check puzzle coherence" << std::endl;
+    std::cout << "5. Finish" << std::endl;
+    std::cout << "Enter an option <1-5>: ";
+}
+
+std::string Game::getLetter() {
+    std::string str;
+    std::cout << "Enter a letter: ";
+    std::cin >> str;
+    return str;
+}
+
+int Game::getRow() {
+    int r;
+    std::cout << "Enter a row: ";
+    std::cin >> r;
+    return r;
+}
+
+int Game::getColumn() {
+    int c;
+    std::cout << "Enter a column: ";
+    std::cin >> c;
+    return c;
 }
 
 void Game::printBoard() {

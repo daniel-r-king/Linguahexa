@@ -12,12 +12,12 @@ enum Directions {
     UP_LEFT
 };
 
-const std::string TILE_SPACE = "T";
+const std::string TILE_SPACE = "[ ]";
 
-const std::string BUILDABLE_SPACE = ".";
-const std::string BLOCKED_SPACE = ".";
+const std::string BUILDABLE_SPACE = " . ";
+const std::string BLOCKED_SPACE = "   ";
 
-const int MAX_TILES_IN_PUZZLE = 20;
+const int MAX_TILES_IN_PUZZLE = 15;
 
 const int MAX_BUILD_ATTEMPTS = 1000;
 
